@@ -1128,56 +1128,7 @@ marknote.Parser.prototype.parseProcessingInstructions = function (str, doc) {
         return str;
     }
 };
-marknote.Parser.prototype.parseProcessingInstructions = function (str, doc) {
-    var tokenizer = new marknote.Tokenizer(str);
-    var tokens = tokenizer.tokenize();
-    var startPosition = 0, endPosition = 0;
-    var isInPI = false;
-    var pi, target, data, attr, name, value, tokenType;
-    for (var t = 0; t < tokens.length; t++) {
-        tokenType = tokens[t].getType();
-        switch (tokenType) {
-          case marknote.constants.TOKENTYPE_PI_START:
-            startPosition = tokens[t].getPosition();
-            target = "";
-            data = new Array();
-            isInPI = true;
-            target = tokens[t + 1].getContent();
-            t++;
-            break;
-          case marknote.constants.TOKENTYPE_PI_END:
-            if (isInPI) {
-                if (marknote.Util.isUndefinedNullOrBlank(target)) {
-                    target = "xml";
-                }
-            }
-            isInPI = false;
-            endPosition = tokens[t].getPosition() + 2;
-            pi = new marknote.ProcessingInstruction(target, data);
-            doc.addProcessingInstruction(pi);
-            break;
-          case marknote.constants.TOKENTYPE_ATTRIBUTE:
-            if (isInPI) {
-                name = tokens[t - 1].getContent();
-                value = tokens[t + 1].getContent();
-                value = value.slice(1, value.length - 1);
-                attr = new marknote.Attribute(name, value);
-                data.push(attr);
-            }
-            t++;
-            break;
-          default:
-            break;
-        }
-    }
-    if (endPosition > startPosition) {
-        var str1 = startPosition > 0 ? str.slice(0, startPosition) : "";
-        var str2 = str.slice(endPosition + 1);
-        return marknote.Util.trim(str1 + str2);
-    } else {
-        return str;
-    }
-};
+
 marknote.Parser.prototype.parseDOCTYPE = function (str, doc) {
     var tokenizer = new marknote.Tokenizer(str);
     var tokens = tokenizer.tokenize();
