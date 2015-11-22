@@ -742,6 +742,45 @@ marknote.Element.prototype.clone = function () {
     var cloner = new marknote.Cloner();
     return cloner.cloneElement(this);
 };
+
+// Find the first enclosed element for a given name
+marknote.Element.prototype.findElement = function(name) {
+    var elements = this.getChildElements();
+    for (var i = 0; i < elements.length; i++) {
+        if (elements[i].getName() == name) {
+            return elements[i];
+        }
+    }
+
+    for (var i = 0; i < elements.length; i++) {
+        var result = elements[i].findElement(name);
+        if (result) {
+            return result;
+        }
+    }
+
+    return null;
+}
+
+// Find all enclosed elements for a given name
+marknote.Element.prototype.findElements = function(name) {
+    var elements = this.getChildElements();
+    var results = new Array();
+
+    for (var i = 0; i < elements.length; i++) {
+        if (elements[i].getName() == name) {
+            results.push(elements[i]);
+        }
+    }
+
+    for (var i = 0; i < elements.length; i++) {
+        var result = elements[i].findElements(name);
+        results = results.concat(result);
+    }
+
+    return results;
+}
+
 marknote.EntityRef = function (name, character) {
     this.dataType = marknote.constants.DATATYPE_ENTITYREF;
     this.name = name;
