@@ -1228,9 +1228,23 @@ marknote.Parser.prototype.parse = function (str) {
     this.xhrResponseText = null;
     this.doc = new marknote.Document();
     this.setStatus(0);
+
+    // Add a dummy empty element as root in case str contains several root
+    // elements. Remove it at the end in case there's only one root element.
+    var elem = new marknote.Element("");
+    this.doc.setRootElement(elem);
+
     str = this.parseProcessingInstructions(str, this.doc);
     this.parseDOCTYPE(str, this.doc);
-    this.parseElement(str, this.doc);
+    this.parseElement(str, this.doc, elem);
+
+    // If there's only one child for the dummy root, then replace
+    // the root with the one child.
+    var children = elem.getChildElements();
+    if (children.length == 1) {
+        this.doc.setRootElement(children[0]);
+    }
+
     return this.doc;
 };
 marknote.Parser.prototype.parseURL = function (url, params, method) {
