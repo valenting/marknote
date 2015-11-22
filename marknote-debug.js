@@ -1271,11 +1271,6 @@ marknote.Parser.prototype.parseElement = function (markup, doc, parentElem) {
             return;
         }
         var elem = new marknote.Element(tokens[tokenPosition + 1].content);
-        if (!parentElem) {
-            doc.setRootElement(elem);
-        } else {
-            parentElem.addContent(elem);
-        }
         for (t = tokenPosition + 1; t < tokens.length; t++) {
             switch (tokens[t].getType()) {
               case marknote.constants.TOKENTYPE_SELF_TERMINATING:
@@ -1322,6 +1317,12 @@ marknote.Parser.prototype.parseElement = function (markup, doc, parentElem) {
             } else {
                 endTokenPosition = tokenPosition;
             }
+            // Self terminated. Add it to the root before breaking. 
+            if (!parentElem) {
+                doc.setRootElement(elem);
+            } else {
+                parentElem.addContent(elem);
+            }
             break;
           case marknote.constants.TAG_CLOSE:
             if (tokens[tokenPosition + 1]) {
@@ -1362,7 +1363,16 @@ marknote.Parser.prototype.parseElement = function (markup, doc, parentElem) {
                     break;
                 }
             }
-            if (!isEndOfElementFound) {
+            // Check if the element has a closing tag and only add it if it does.
+            if (isEndOfElementFound || elem.getName() == "stream:stream") {
+                if (!parentElem) {
+                    doc.setRootElement(elem);
+                } else {
+                    parentElem.addContent(elem);
+                }
+            } else {
+                // TODO: remove me.
+                console.log("marknote: No end tag found for <" + elem.getName() + ">");
                 return;
             }
             break;
