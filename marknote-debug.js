@@ -404,6 +404,7 @@ marknote.Document = function () {
     this.processingInstructions = new Array();
     this.rootElement = new marknote.Element();
     this.contents = new Array();
+    this.remainder = null;
 };
 marknote.Document.prototype.getProcessingInstructions = function () {
     return this.processingInstructions;
@@ -1244,6 +1245,10 @@ marknote.Parser.prototype.parse = function (str) {
     if (children.length == 1) {
         this.doc.setRootElement(children[0]);
     }
+    // If there are no children, the root should be null.
+    if (children.length == 0) {
+        this.doc.setRootElement(null);
+    }
 
     return this.doc;
 };
@@ -1285,6 +1290,7 @@ marknote.Parser.prototype.parseElement = function (markup, doc, parentElem) {
             return;
         }
         var elem = new marknote.Element(tokens[tokenPosition + 1].content);
+        var startToken = tokens[tokenPosition];
         for (t = tokenPosition + 1; t < tokens.length; t++) {
             switch (tokens[t].getType()) {
               case marknote.constants.TOKENTYPE_SELF_TERMINATING:
@@ -1385,17 +1391,19 @@ marknote.Parser.prototype.parseElement = function (markup, doc, parentElem) {
                     parentElem.addContent(elem);
                 }
             } else {
-                // TODO: remove me.
-                console.log("marknote: No end tag found for <" + elem.getName() + ">");
+                doc.remainder = markup.slice(startToken.getPosition);
                 return;
             }
             break;
           default:
+            // The remainder saves the last part that wasn't able to be parsed
+            doc.remainder = markup.slice(tokens[tokenPosition].getPosition());
             return;
         }
         t = endTokenPosition;
     }
 };
+
 marknote.ProcessingInstruction = function (target, data) {
     this.dataType = marknote.constants.DATATYPE_PROCESSINGINSTRUCTION;
     this.isSw8tXmlContent = false;
