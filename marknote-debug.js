@@ -404,7 +404,7 @@ marknote.Document = function () {
     this.processingInstructions = new Array();
     this.rootElement = new marknote.Element();
     this.contents = new Array();
-    this.remainder = null;
+    this.remainder = "";
 };
 marknote.Document.prototype.getProcessingInstructions = function () {
     return this.processingInstructions;
