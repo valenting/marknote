@@ -1245,10 +1245,6 @@ marknote.Parser.prototype.parse = function (str) {
     if (children.length == 1) {
         this.doc.setRootElement(children[0]);
     }
-    // If there are no children, the root should be null.
-    if (children.length == 0) {
-        this.doc.setRootElement(null);
-    }
 
     return this.doc;
 };
